@@ -48,7 +48,7 @@ class SamsungGalaxyStore:
 
     def get_category_apps(self, category: Category) -> None:
         url: str = f"{self.BASE_URL}?id=categoryProductList2Notc"
-        payload: str = self._get_category_apps_request(category.id, 1, 30)
+        payload: str = self._get_category_apps_request(category.id, 1, 500)
         headers: Dict[str, str] = {"content-type": "application/xml"}
         resp: Response = self.session.post(url, data=payload, headers=headers)
 
