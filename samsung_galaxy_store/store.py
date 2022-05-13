@@ -4,7 +4,6 @@ from requests import Response, Session
 import xml.etree.ElementTree as ET
 
 
-
 @dataclass
 class Category:
     id: str
@@ -156,7 +155,7 @@ class SamsungGalaxyStore:
         root.find("./request/param[@name='categoryID']").text = category_id
         root.find("./request/param[@name='startNum']").text = str(start)
         root.find("./request/param[@name='endNum']").text = str(end)
-        return ET.tostring(root, encoding='utf8', method='xml')
+        return ET.tostring(root, encoding="utf8", method="xml")
 
 
 if __name__ == "__main__":
