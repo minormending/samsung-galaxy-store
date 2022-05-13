@@ -194,3 +194,4 @@ if __name__ == "__main__":
         category: Category = Category(args.category_id, None, None, None, False, None)
         apps = store.get_category_apps(category, end=args.max_apps)
         for app in apps:
+            print(app.__dict__)
