@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 from requests import Response, Session
 import xml.etree.ElementTree as ET
 
@@ -15,7 +15,7 @@ class Category:
 
 
 @dataclass
-class App:
+class AppSummary:
     category_id: str
     category_name: str
     category_class: str
@@ -40,7 +40,7 @@ class App:
 
 
 class SamsungGalaxyStore:
-    BASE_URL: str = "https://galaxystore.samsung.com/storeserver/ods.as"
+    BASE_URL: str = "https://galaxystore.samsung.com"
 
     def __init__(self) -> None:
         self.session = Session()
@@ -51,7 +51,7 @@ class SamsungGalaxyStore:
         }
 
     def get_categories(self) -> Iterable[Category]:
-        url: str = f"{self.BASE_URL}?id=normalCategoryList"
+        url: str = f"{self.BASE_URL}/storeserver/ods.as?id=normalCategoryList"
         payload: str = self._get_categories_request()
         headers: Dict[str, str] = {"content-type": "application/xml"}
         resp: Response = self.session.post(url, data=payload, headers=headers)
@@ -76,8 +76,8 @@ class SamsungGalaxyStore:
 
     def get_category_apps(
         self, category: Category, start: int = 1, end: int = 500
-    ) -> Iterable[App]:
-        url: str = f"{self.BASE_URL}?id=categoryProductList2Notc"
+    ) -> Iterable[AppSummary]:
+        url: str = f"{self.BASE_URL}/storeserver/ods.as?id=categoryProductList2Notc"
         payload: str = self._get_category_apps_request(category.id, start, end)
         headers: Dict[str, str] = {"content-type": "application/xml"}
         resp: Response = self.session.post(url, data=payload, headers=headers)
@@ -87,7 +87,7 @@ class SamsungGalaxyStore:
             raise Exception(f"Unable to get Samsung Galazy Store categories: {error}")
 
         for app in root.findall("./response/list"):
-            yield App(
+            yield AppSummary(
                 category_id=app.findtext("./value[@name='categoryID']"),
                 category_name=app.findtext("./value[@name='categoryName']"),
                 category_class=app.findtext("./value[@name='categoryClass']"),
@@ -169,14 +169,14 @@ if __name__ == "__main__":
         "categories",
         help="Get store category information",
     )
-    app_parser = subparsers.add_parser(
+    category_app_parser = subparsers.add_parser(
         "apps", help="Get bestselling apps in a specific category."
     )
-    app_parser.add_argument(
+    category_app_parser.add_argument(
         "category_id",
         help="Category id for which to lookup apps.",
     )
-    app_parser.add_argument(
+    category_app_parser.add_argument(
         "--max_apps",
         type=int,
         default=500,
