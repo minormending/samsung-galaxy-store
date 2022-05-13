@@ -15,10 +15,35 @@ class Category:
     content_id: str
 
 
+@dataclass
+class App:
+    category_id: str
+    category_name: str
+    category_class: str
+    id: str
+    name: str
+    icon_url: str
+    currency_symbol: str
+    price: float
+    discount_price: float
+    is_discount: bool
+    average_rating: int
+    release_date: str
+    content_type: str
+    guid: str
+    version: str
+    version_code: str
+    size: int
+    install_size: int
+    restricted_age: int
+    developer: str
+    iap_support: bool
+
+
 class SamsungGalaxyStore:
     BASE_URL: str = "https://galaxystore.samsung.com/storeserver/ods.as"
 
-    def __init__(self, country: str, device: str) -> None:
+    def __init__(self) -> None:
         self.session = Session()
         self.session.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36",
@@ -39,14 +64,18 @@ class SamsungGalaxyStore:
         for category in root.findall("./response/list"):
             yield Category(
                 id=category.findtext("./value[@name='categoryID']"),
-                translation_id=category.findtext("./value[@name='categoryTranslateStringID']"),
+                translation_id=category.findtext(
+                    "./value[@name='categoryTranslateStringID']"
+                ),
                 name=category.findtext("./value[@name='categoryName']"),
                 icon_url=category.findtext("./value[@name='iconImgUrl']"),
-                watch_face=category.findtext("./value[@name='gearWatchFaceYN']").lower() in ['y', '1'],
+                watch_face=self._parse_bool(
+                    category.findtext("./value[@name='gearWatchFaceYN']")
+                ),
                 content_id=category.findtext("./value[@name='contentCategoryID']"),
             )
 
-    def get_category_apps(self, category: Category) -> None:
+    def get_category_apps(self, category: Category) -> Iterable[App]:
         url: str = f"{self.BASE_URL}?id=categoryProductList2Notc"
         payload: str = self._get_category_apps_request(category.id, 1, 500)
         headers: Dict[str, str] = {"content-type": "application/xml"}
@@ -56,7 +85,38 @@ class SamsungGalaxyStore:
         if error := root.findtext("./response/errorInfo/errorString"):
             raise Exception(f"Unable to get Samsung Galazy Store categories: {error}")
 
-        return ET.tostring(root, encoding='utf8', method='xml')
+        for app in root.findall("./response/list"):
+            yield App(
+                category_id=app.findtext("./value[@name='categoryID']"),
+                category_name=app.findtext("./value[@name='categoryName']"),
+                category_class=app.findtext("./value[@name='categoryClass']"),
+                id=app.findtext("./value[@name='productID']"),
+                name=app.findtext("./value[@name='productName']"),
+                icon_url=app.findtext("./value[@name='productImgUrl']"),
+                currency_symbol=app.findtext("./value[@name='currencyUnit']"),
+                price=app.findtext("./value[@name='price']"),
+                discount_price=app.findtext("./value[@name='discountPrice']"),
+                is_discount=self._parse_bool(
+                    app.findtext("./value[@name='discountFlag']")
+                ),
+                average_rating=float(app.findtext("./value[@name='averageRating']"))
+                / 2.0,
+                release_date=app.findtext("./value[@name='date']"),
+                content_type=app.findtext("./value[@name='contentType']"),
+                guid=app.findtext("./value[@name='GUID']"),
+                version=app.findtext("./value[@name='version']"),
+                version_code=app.findtext("./value[@name='versionCode']"),
+                size=int(app.findtext("./value[@name='realContentSize']")),
+                install_size=int(app.findtext("./value[@name='installSize']")),
+                restricted_age=app.findtext("./value[@name='restrictedAge']"),
+                developer=app.findtext("./value[@name='sellerName']"),
+                iap_support=self._parse_bool(
+                    app.findtext("./value[@name='IAPSupportYn']")
+                ),
+            )
+
+    def _parse_bool(self, value: str) -> bool:
+        return value.strip().lower() in ["y", "1"]
 
     def _get_categories_request(self) -> str:
         return """
@@ -81,9 +141,9 @@ class SamsungGalaxyStore:
     <param name="imgHeight">135</param>
     <param name="alignOrder">bestselling</param>
     <param name="contentType">All</param>
-    <param name="endNum">30</param>
-    <param name="categoryName">Puzzle</param>
-    <param name="categoryID">G000046957</param>
+    <param name="endNum">500</param>
+    <param name="categoryName"></param>
+    <param name="categoryID"></param>
     <param name="srcType">01</param>
     <param name="status">0</param>
 </request>
@@ -102,4 +162,6 @@ if __name__ == "__main__":
     categories = list(store.get_categories())
     print(categories[0])
 
-    apps = store.get_category_apps(categories[0])
+    apps = list(store.get_category_apps(categories[0]))
+    for app in apps:
+        print(app.__dict__)
