@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable, List
+from typing import Any, Dict, Iterable, List
 from requests import Response, Session
 import xml.etree.ElementTree as ET
 
@@ -38,6 +38,17 @@ class AppSummary:
     developer: str
     iap_support: bool
 
+
+@dataclass
+class App(AppSummary):
+    description: str
+    release_notes: str
+    customer_support_email: str
+    deeplink: str
+    update_date: str
+    permissions: List[str]
+    privacy_policy_url: str
+    youtube_url: str
 
 class SamsungGalaxyStore:
     BASE_URL: str = "https://galaxystore.samsung.com"
@@ -84,7 +95,7 @@ class SamsungGalaxyStore:
 
         root: ET.Element = ET.fromstring(resp.text.strip())
         if error := root.findtext("./response/errorInfo/errorString"):
-            raise Exception(f"Unable to get Samsung Galazy Store categories: {error}")
+            raise Exception(f"Unable to get Samsung Galazy Store category apps: {error}")
 
         for app in root.findall("./response/list"):
             yield AppSummary(
@@ -115,6 +126,57 @@ class SamsungGalaxyStore:
                     app.findtext("./value[@name='IAPSupportYn']")
                 ),
             )
+
+    def get_app_details(self, guid: str) -> App:
+        url: str = f"{self.BASE_URL}/api/detail/{guid}"
+        resp: Response = self.session.get(url)
+
+        app: Dict[str, Any] = resp.json()
+        detail: Dict[str, Any] = app.get("DetailMain")
+
+        icon_url: str = f"http://img.samsungapps.com{path}" if (path := detail.get("cnvrnImgUrl")) else None
+        currency_symbol: str = None
+        price: float = None
+        if (local_price := detail.get("localPrice")):
+            if not local_price[0].isnumeric():
+                price = float(local_price[1:])
+                currency_symbol = local_price[0]
+            else:
+                price = float(local_price)
+
+        return App(
+            category_id=None,
+            category_name=None,
+            category_class=None,
+            id=app.get("contentId"),
+            name=detail.get("contentName"),
+            icon_url=icon_url,
+            currency_symbol=currency_symbol,
+            price=price,
+            discount_price=detail.get("discountPrice"),
+            is_discount=self._parse_bool(detail.get("discountFlag")),
+            average_rating=float(detail.get("ratingNumber")),
+            release_date=None,
+            content_type=app.get("appType"),
+            guid=app.get("appId"),
+            version=detail.get("contentBinaryVersion"),
+            version_code=None,
+            size=None,
+            install_size=None,
+            restricted_age=detail.get("limitAgeCd"),
+            developer=detail.get("sellerName"),
+            iap_support=self._parse_bool(
+                detail.get("itemPurchaseFlag")
+            ),
+            description=detail.get("contentDescription"),
+            release_notes=detail.get("contentNewDescription"),
+            customer_support_email=detail.get("customerSupportEmail"),
+            deeplink=detail.get("deeplinkUrl"),
+            update_date=detail.get("modifyDate"),
+            permissions=detail.get("permissionList"),
+            privacy_policy_url=detail.get("sellerPrivatePolicy"),
+            youtube_url=detail.get("youtubeUrl"),
+        )
 
     def _parse_bool(self, value: str) -> bool:
         return value.strip().lower() in ["y", "1"]
@@ -182,6 +244,12 @@ if __name__ == "__main__":
         default=500,
         help="Number of apps to return. default=500",
     )
+    app_parser = subparsers.add_parser(
+        "app", help="Get bestselling apps in a specific category."
+    )
+    app_parser.add_argument(
+        "guid", help="Get bestselling apps in a specific category."
+    )
 
     args = parser.parse_args()
 
@@ -191,6 +259,10 @@ if __name__ == "__main__":
             print(category.__dict__)
     elif args.command == "apps" and args.category_id:
         category: Category = Category(args.category_id, None, None, None, False, None)
-        apps = store.get_category_apps(category, end=args.max_apps)
+        apps: Iterable[AppSummary] = store.get_category_apps(category, end=args.max_apps)
         for app in apps:
             print(app.__dict__)
+    elif args.command == "app" and args.guid:
+        app: App = store.get_app_details(args.guid)
+        for name, value in app.__dict__.items():
+            print(name, ":", value)
