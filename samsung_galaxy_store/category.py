@@ -158,7 +158,7 @@ class SamsungGalaxyStore:
 
 
 if __name__ == "__main__":
-    store = SamsungGalaxyStore("us", "pc")
+    store = SamsungGalaxyStore()
     categories = list(store.get_categories())
     print(categories[0])
 
