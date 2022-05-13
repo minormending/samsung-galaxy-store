@@ -75,9 +75,11 @@ class SamsungGalaxyStore:
                 content_id=category.findtext("./value[@name='contentCategoryID']"),
             )
 
-    def get_category_apps(self, category: Category) -> Iterable[App]:
+    def get_category_apps(
+        self, category: Category, start: int = 1, end: int = 500
+    ) -> Iterable[App]:
         url: str = f"{self.BASE_URL}?id=categoryProductList2Notc"
-        payload: str = self._get_category_apps_request(category.id, 1, 500)
+        payload: str = self._get_category_apps_request(category.id, start, end)
         headers: Dict[str, str] = {"content-type": "application/xml"}
         resp: Response = self.session.post(url, data=payload, headers=headers)
 
@@ -158,10 +160,37 @@ class SamsungGalaxyStore:
 
 
 if __name__ == "__main__":
-    store = SamsungGalaxyStore()
-    categories = list(store.get_categories())
-    print(categories[0])
+    import argparse
 
-    apps = list(store.get_category_apps(categories[0]))
-    for app in apps:
-        print(app.__dict__)
+    parser = argparse.ArgumentParser(
+        description="Lookup Samsung Galaxy Store information."
+    )
+    subparsers = parser.add_subparsers(dest="command")
+    category_parser = subparsers.add_parser(
+        "categories",
+        help="Get store category information",
+    )
+    app_parser = subparsers.add_parser(
+        "apps", help="Get bestselling apps in a specific category."
+    )
+    app_parser.add_argument(
+        "category_id",
+        help="Category id for which to lookup apps.",
+    )
+    app_parser.add_argument(
+        "--max_apps",
+        type=int,
+        default=500,
+        help="Number of apps to return. default=500",
+    )
+
+    args = parser.parse_args()
+
+    store = SamsungGalaxyStore()
+    if args.command == "categories":
+        for category in store.get_categories():
+            print(category.__dict__)
+    elif args.command == "apps" and args.category_id:
+        category: Category = Category(args.category_id, None, None, None, False, None)
+        apps = store.get_category_apps(category, end=args.max_apps)
+        for app in apps:
