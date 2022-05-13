@@ -51,7 +51,9 @@ class SamsungGalaxyStore:
 
         root: ET.Element = ET.fromstring(resp.text.strip())
         if error := root.findtext("./response/errorInfo/errorString"):
-            raise Exception(f"Unable to get Samsung Galazy Store category apps: {error}")
+            raise Exception(
+                f"Unable to get Samsung Galazy Store category apps: {error}"
+            )
 
         for app in root.findall("./response/list"):
             yield AppSummary(
@@ -90,10 +92,14 @@ class SamsungGalaxyStore:
         app: Dict[str, Any] = resp.json()
         detail: Dict[str, Any] = app.get("DetailMain")
 
-        icon_url: str = f"http://img.samsungapps.com{path}" if (path := detail.get("cnvrnImgUrl")) else None
+        icon_url: str = (
+            f"http://img.samsungapps.com{path}"
+            if (path := detail.get("cnvrnImgUrl"))
+            else None
+        )
         currency_symbol: str = None
         price: float = None
-        if (local_price := detail.get("localPrice")):
+        if local_price := detail.get("localPrice"):
             if not local_price[0].isnumeric():
                 price = float(local_price[1:])
                 currency_symbol = local_price[0]
@@ -135,9 +141,7 @@ class SamsungGalaxyStore:
             install_size=None,
             restricted_age=detail.get("limitAgeCd"),
             developer=developer,
-            iap_support=self._parse_bool(
-                detail.get("itemPurchaseFlag")
-            ),
+            iap_support=self._parse_bool(detail.get("itemPurchaseFlag")),
             description=detail.get("contentDescription"),
             release_notes=detail.get("contentNewDescription"),
             customer_support_email=detail.get("customerSupportEmail"),
@@ -217,9 +221,7 @@ if __name__ == "__main__":
     app_parser = subparsers.add_parser(
         "app", help="Get bestselling apps in a specific category."
     )
-    app_parser.add_argument(
-        "guid", help="Get bestselling apps in a specific category."
-    )
+    app_parser.add_argument("guid", help="Get bestselling apps in a specific category.")
 
     args = parser.parse_args()
 
@@ -229,7 +231,9 @@ if __name__ == "__main__":
             print(category.json())
     elif args.command == "apps" and args.category_id:
         category: Category = Category(args.category_id, None, None, None, False, None)
-        apps: Iterable[AppSummary] = store.get_category_apps(category, end=args.max_apps)
+        apps: Iterable[AppSummary] = store.get_category_apps(
+            category, end=args.max_apps
+        )
         for app in apps:
             print(app.json())
     elif args.command == "app" and args.guid:

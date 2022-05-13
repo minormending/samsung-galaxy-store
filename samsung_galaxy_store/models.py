@@ -3,11 +3,7 @@ from typing import Any, Dict, List
 
 
 def minimize_dict(maximized: Dict[Any, Any]) -> Dict[Any, Any]:
-    return {
-        key: value
-        for key, value in maximized.items()
-        if value is not None
-    }
+    return {key: value for key, value in maximized.items() if value is not None}
 
 
 @dataclass
@@ -22,6 +18,7 @@ class Category:
     def json(self) -> Dict[str, Any]:
         return minimize_dict(self.__dict__)
 
+
 @dataclass
 class Developer:
     name: str
@@ -34,6 +31,7 @@ class Developer:
 
     def json(self) -> Dict[str, Any]:
         return minimize_dict(self.__dict__)
+
 
 @dataclass
 class Review:
@@ -75,6 +73,7 @@ class AppSummary:
         value["developer"] = self.developer.json()
         return minimize_dict(value)
 
+
 @dataclass
 class App(AppSummary):
     description: str
@@ -85,6 +84,6 @@ class App(AppSummary):
     permissions: List[str]
     privacy_policy_url: str
     youtube_url: str
-    
+
     def json(self) -> Dict[str, Any]:
         return super().json()
