@@ -4,6 +4,14 @@ from requests import Response, Session
 import xml.etree.ElementTree as ET
 
 
+def minimize_dict(maximized: Dict[Any, Any]) -> Dict[Any, Any]:
+    return {
+        key: value
+        for key, value in maximized.items()
+        if value is not None
+    }
+
+
 @dataclass
 class Category:
     id: str
@@ -13,6 +21,21 @@ class Category:
     watch_face: bool
     content_id: str
 
+    def json(self) -> Dict[str, Any]:
+        return minimize_dict(self.__dict__)
+
+@dataclass
+class Developer:
+    name: str
+    url: str = None
+    phone: str = None
+    address: str = None
+    representative: str = None
+    contact_first_name: str = None
+    contact_last_name: str = None
+
+    def json(self) -> Dict[str, Any]:
+        return minimize_dict(self.__dict__)
 
 @dataclass
 class AppSummary:
@@ -35,9 +58,13 @@ class AppSummary:
     size: int
     install_size: int
     restricted_age: int
-    developer: str
     iap_support: bool
+    developer: Developer
 
+    def json(self) -> Dict[str, Any]:
+        value: Dict[str, Any] = self.__dict__
+        value["developer"] = self.developer.json()
+        return minimize_dict(value)
 
 @dataclass
 class App(AppSummary):
@@ -49,6 +76,9 @@ class App(AppSummary):
     permissions: List[str]
     privacy_policy_url: str
     youtube_url: str
+    
+    def json(self) -> Dict[str, Any]:
+        return super().json()
 
 class SamsungGalaxyStore:
     BASE_URL: str = "https://galaxystore.samsung.com"
@@ -121,10 +151,10 @@ class SamsungGalaxyStore:
                 size=int(app.findtext("./value[@name='realContentSize']")),
                 install_size=int(app.findtext("./value[@name='installSize']")),
                 restricted_age=app.findtext("./value[@name='restrictedAge']"),
-                developer=app.findtext("./value[@name='sellerName']"),
                 iap_support=self._parse_bool(
                     app.findtext("./value[@name='IAPSupportYn']")
                 ),
+                developer=Developer(name=app.findtext("./value[@name='sellerName']")),
             )
 
     def get_app_details(self, guid: str) -> App:
@@ -143,6 +173,20 @@ class SamsungGalaxyStore:
                 currency_symbol = local_price[0]
             else:
                 price = float(local_price)
+
+        seller: Dict[str, str] = app.get("SellerInfo")
+        phone: str = seller.get("sellerNumber")
+        if phone:
+            phone = phone.lower().removeprefix("irl")
+        developer: Developer = Developer(
+            name=detail.get("sellerName"),
+            url=seller.get("sellerSite"),
+            phone=phone,
+            address=seller.get("firstSellerAddress"),
+            representative=seller.get("representation"),
+            contact_first_name=seller.get("firstName"),
+            contact_last_name=seller.get("lastName"),
+        )
 
         return App(
             category_id=None,
@@ -164,7 +208,7 @@ class SamsungGalaxyStore:
             size=None,
             install_size=None,
             restricted_age=detail.get("limitAgeCd"),
-            developer=detail.get("sellerName"),
+            developer=developer,
             iap_support=self._parse_bool(
                 detail.get("itemPurchaseFlag")
             ),
@@ -256,13 +300,13 @@ if __name__ == "__main__":
     store = SamsungGalaxyStore()
     if args.command == "categories":
         for category in store.get_categories():
-            print(category.__dict__)
+            print(category.json())
     elif args.command == "apps" and args.category_id:
         category: Category = Category(args.category_id, None, None, None, False, None)
         apps: Iterable[AppSummary] = store.get_category_apps(category, end=args.max_apps)
         for app in apps:
-            print(app.__dict__)
+            print(app.json())
     elif args.command == "app" and args.guid:
         app: App = store.get_app_details(args.guid)
-        for name, value in app.__dict__.items():
+        for name, value in app.json().items():
             print(name, ":", value)
