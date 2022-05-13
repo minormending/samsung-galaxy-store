@@ -10,6 +10,7 @@ pip install samsung-galaxy-store
 Available methods:
 - `get_categories()`: Retrieves the list of store categories.
 - `get_category_apps(...)`: Retrieves a list of apps for a specific category.
+- `get_app_details(...)`: Retrieves expanded metadata for a specific app.
 
 
 ## Get Categories
@@ -40,7 +41,7 @@ Retrieves a list of apps for a specific category. Options:
 ```
 store = SamsungGalaxyStore()
 category: Category = Category("G000060951", None, None, None, False, None)
-apps: List[App] = list(store.get_category_apps(category, end=3))
+apps: List[AppSummary] = list(store.get_category_apps(category, end=3))
 for app in apps:
     print(app.__dict__)
 ```
@@ -50,4 +51,20 @@ for app in apps:
 {'category_id': 'G000060951', 'category_name': 'Music', 'category_class': 'G', 'id': '000006109280', 'name': 'Tiles Hop - EDM Rush Ball & Endless Music Magic', 'icon_url': 'http://img.samsungapps.com/productNew/000006109280/IconImage_20220321044524279_NEW_WEB_ICON_135_135.png', 'currency_symbol': '$', 'price': '0.00', 'discount_price': '0.00', 'is_discount': False, 'average_rating': 3.0, 'release_date': '2022;01;13;', 'content_type': 'game', 'guid': 'com.GamesStore3D.TilesHopEndlessMusicMagic', 'version': '2.1.1', 'version_code': '1', 'size': 52878366, 'install_size': 52878366, 'restricted_age': '0', 'developer': 'Poppy Challenge Games', 'iap_support': True}
 {'category_id': 'G000060951', 'category_name': 'Music', 'category_class': 'G', 'id': '000005751609', 'name': 'Tiles Hop: EDM Rush!', 'icon_url': 'http://img.samsungapps.com/productNew/000005751609/IconImage_20210625042847048_NEW_WEB_ICON_135_135.png', 'currency_symbol': '$', 'price': '0.00', 'discount_price': '0.00', 'is_discount': False, 'average_rating': 4.0, 'release_date': '2021;06;14;', 'content_type': 'game', 'guid': 'Music.tiles.hop.hot', 'version': '1.0', 'version_code': '1', 'size': 51295176, 'install_size': 51295176, 'restricted_age': '0', 'developer': 'VODOO GAMES', 'iap_support': False}
 {'category_id': 'G000060951', 'category_name': 'Music', 'category_class': 'G', 'id': '000005250051', 'name': 'Drum Pad', 'icon_url': 'http://img.samsungapps.com/productNew/000005250051/IconImage_20210121025114863_NEW_WEB_ICON_135_135.png', 'currency_symbol': '$', 'price': '0.00', 'discount_price': '0.00', 'is_discount': False, 'average_rating': 4.5, 'release_date': '2020;09;24;', 'content_type': 'game', 'guid': 'cos.appofun_samfree.drumpad', 'version': 'Drum Pad Galaxy', 'version_code': '1', 'size': 21914755, 'install_size': 21914755, 'restricted_age': '4', 'developer': 'Free Beat Maker Machine', 'iap_support': False}
+```
+
+## Get App Details
+Retrieves expanded metadata for a specific app. Options:
+- `guid: str` = The Samsung guid (i.e sku) for an app.
+
+### Example
+```
+store = SamsungGalaxyStore()
+app: App = store.get_category_apps(guid="com.playrix.homescapes.samsung")
+print(app)
+```
+
+### Results
+```
+{'id': '000005514733', 'name': 'Homescapes', 'icon_url': 'http://img.samsungapps.com/productNew/000005514733/IconImage_20220505092438492_NEW_WEB_ICON.png', 'currency_symbol': '$', 'price': 0.0, 'is_discount': False, 'average_rating': 4.5, 'content_type': 'A', 'guid': 'com.playrix.homescapes.samsung', 'version': '5.3.3', 'restricted_age': '4', 'iap_support': True, 'developer': {'name': 'Playrix', 'url': 'https://www.playrix.com', 'phone': '896034189', 'address': 'RED OAK NORTH, SOUTH COUNTY BUSINESS PARK', 'representative': 'Mikhail Smachev', 'contact_first_name': 'PLR Worldwide Sales Limited'}, 'description': "Welcome to Homescapes, ...", 'release_notes': "What's new:\n- Bug fixes and improvements\n\nPlease update the game to the latest version.\n\nWEDDING MAKEOVER\n• Save Emma's wedding!\n• Change the character's style!\n• Decorate the wedding venue!\n\nKNIGHT'S TALE\n• Help William join the Knight Club and decorate the yard with medieval decorations!\n• Get the Knight's Castle decoration.\n\nALSO\n• Woolly Season! Use the Golden Ticket to get a cute little lamb!\n• Help Betty improve her smart home and meet a robot butler!", 'customer_support_email': 'homescapes@playrix.com', 'deeplink': 'samsungapps://ProductDetail/com.playrix.homescapes.samsung?session_id=W_8EE1FEC49C2C61700D7D11650B83BDEC', 'update_date': '2022.05.05', 'permissions': ['storage'], 'privacy_policy_url': 'https://www.playrix.com/privacy/index.html', 'youtube_url': 'https://www.youtube.com/embed/9FlvCL8_4r8?hd=1&rel=0&autohide=1&showinfo=0&wmode=transparent'}
 ```

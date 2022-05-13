@@ -308,5 +308,4 @@ if __name__ == "__main__":
             print(app.json())
     elif args.command == "app" and args.guid:
         app: App = store.get_app_details(args.guid)
-        for name, value in app.json().items():
-            print(name, ":", value)
+        print(app.json())
