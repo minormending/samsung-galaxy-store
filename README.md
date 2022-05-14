@@ -55,7 +55,7 @@ for app in apps:
 
 ## Get App Details
 Retrieves expanded metadata for a specific app. Options:
-- `guid: str` = The Samsung guid (i.e sku) for an app.
+- `guid: str` = The Samsung guid (i.e sku) for an app. The guid is set by the developer, but a common format is "com.company.app".
 
 ### Example
 ```
@@ -67,4 +67,21 @@ print(app)
 ### Results
 ```
 {'id': '000005514733', 'name': 'Homescapes', 'icon_url': 'http://img.samsungapps.com/productNew/000005514733/IconImage_20220505092438492_NEW_WEB_ICON.png', 'currency_symbol': '$', 'price': 0.0, 'is_discount': False, 'average_rating': 4.5, 'content_type': 'A', 'guid': 'com.playrix.homescapes.samsung', 'version': '5.3.3', 'restricted_age': '4', 'iap_support': True, 'developer': {'name': 'Playrix', 'url': 'https://www.playrix.com', 'phone': '896034189', 'address': 'RED OAK NORTH, SOUTH COUNTY BUSINESS PARK', 'representative': 'Mikhail Smachev', 'contact_first_name': 'PLR Worldwide Sales Limited'}, 'description': "Welcome to Homescapes, ...", 'release_notes': "What's new:\n- Bug fixes and improvements\n\nPlease update the game to the latest version.\n\nWEDDING MAKEOVER\n• Save Emma's wedding!\n• Change the character's style!\n• Decorate the wedding venue!\n\nKNIGHT'S TALE\n• Help William join the Knight Club and decorate the yard with medieval decorations!\n• Get the Knight's Castle decoration.\n\nALSO\n• Woolly Season! Use the Golden Ticket to get a cute little lamb!\n• Help Betty improve her smart home and meet a robot butler!", 'customer_support_email': 'homescapes@playrix.com', 'deeplink': 'samsungapps://ProductDetail/com.playrix.homescapes.samsung?session_id=W_8EE1FEC49C2C61700D7D11650B83BDEC', 'update_date': '2022.05.05', 'permissions': ['storage'], 'privacy_policy_url': 'https://www.playrix.com/privacy/index.html', 'youtube_url': 'https://www.youtube.com/embed/9FlvCL8_4r8?hd=1&rel=0&autohide=1&showinfo=0&wmode=transparent'}
+```
+
+# CLI Usage
+```
+usage: store.py [-h] {categories,apps,app,reviews} ...
+
+Lookup Samsung Galaxy Store information.
+
+positional arguments:
+  {categories,apps,app,reviews}
+    categories          Get store category information
+    apps                Get bestselling apps in a specific category.
+    app                 Get a specific app details using the guid (i.e sku)
+    reviews             Get reviews for a specific app using the product id (i.e number)
+
+options:
+  -h, --help            show this help message and exit
 ```
