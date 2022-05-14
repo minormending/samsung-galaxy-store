@@ -39,9 +39,12 @@ class Review:
     user: str
     created_date: str
     updated_date: str
-    stars: int
+    stars: float
     developer_responded: bool
     user_id: str
+
+    def json(self) -> Dict[str, Any]:
+        return minimize_dict(self.__dict__)
 
 
 @dataclass

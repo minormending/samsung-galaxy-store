@@ -1,8 +1,8 @@
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, List
 from requests import Response, Session
 import xml.etree.ElementTree as ET
 
-from models import Category, Developer, AppSummary, App
+from models import Category, Developer, AppSummary, App, Review
 
 
 
@@ -152,8 +152,39 @@ class SamsungGalaxyStore:
             youtube_url=detail.get("youtubeUrl"),
         )
 
+    def get_all_app_reviews(self, app_id: str) -> Iterable[Review]:
+        page_size: int = 15
+        counter: int = 1
+        while True:
+            reviews: List[Review] = list(self.get_app_reviews(app_id, counter))
+            if len(reviews) == page_size:
+                yield from reviews
+            else:
+                break
+            counter += 15
+
+    def get_app_reviews(self, app_id: str, start: int) -> Iterable[Review]:
+        url: str = (
+            f"{self.BASE_URL}/api/commentList/contentId={app_id}&startNum={start}"
+        )
+        resp: Response = self.session.get(url)
+
+        reviews: List[Dict[str, Any]] = resp.json().get("commentList")
+        for review in reviews:
+            yield Review(
+                text=review.get("commentText"),
+                user=review.get("loginId"),
+                created_date=review.get("createdDate"),
+                updated_date=review.get("modifyDate"),
+                stars=float(
+                    review.get("ratingValueNumber").removeprefix("stars rating-stars-").replace("-", ".")
+                ),
+                developer_responded=self._parse_bool(review.get("sellerAnswerFlag")),
+                user_id=review.get("userId"),
+            )
+
     def _parse_bool(self, value: str) -> bool:
-        return value.strip().lower() in ["y", "1"]
+        return value.strip().lower() in ["y", "1", "true"]
 
     def _get_categories_request(self) -> str:
         return """
@@ -201,10 +232,12 @@ if __name__ == "__main__":
         description="Lookup Samsung Galaxy Store information."
     )
     subparsers = parser.add_subparsers(dest="command")
+
     category_parser = subparsers.add_parser(
         "categories",
         help="Get store category information",
     )
+
     category_app_parser = subparsers.add_parser(
         "apps", help="Get bestselling apps in a specific category."
     )
@@ -218,10 +251,22 @@ if __name__ == "__main__":
         default=500,
         help="Number of apps to return. default=500",
     )
+
     app_parser = subparsers.add_parser(
-        "app", help="Get bestselling apps in a specific category."
+        "app", help="Get a specific app details using the guid (i.e sku)"
     )
-    app_parser.add_argument("guid", help="Get bestselling apps in a specific category.")
+    app_parser.add_argument(
+        "guid", help="Get a specific app details using the guid (i.e sku)"
+    )
+
+    review_parser = subparsers.add_parser(
+        "reviews",
+        help="Get reviews for a specific app using the product id (i.e number)",
+    )
+    review_parser.add_argument(
+        "product_id",
+        help="Get reviews for a specific app using the product id (i.e number)",
+    )
 
     args = parser.parse_args()
 
@@ -239,3 +284,7 @@ if __name__ == "__main__":
     elif args.command == "app" and args.guid:
         app: App = store.get_app_details(args.guid)
         print(app.json())
+    elif args.command == "reviews" and args.product_id:
+        reviews: Iterable[Review] = store.get_all_app_reviews(args.product_id)
+        for review in reviews:
+            print(review.json())
