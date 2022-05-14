@@ -181,7 +181,9 @@ class SamsungGalaxyStore:
                 created_date=review.get("createdDate"),
                 updated_date=review.get("modifyDate"),
                 stars=float(
-                    review.get("ratingValueNumber").removeprefix("stars rating-stars-").replace("-", ".")
+                    review.get("ratingValueNumber")
+                    .removeprefix("stars rating-stars-")
+                    .replace("-", ".")
                 ),
                 developer_responded=self._parse_bool(review.get("sellerAnswerFlag")),
                 user_id=review.get("userId"),
@@ -295,6 +297,8 @@ if __name__ == "__main__":
         app: App = store.get_app_details(args.guid)
         print(app.json())
     elif args.command == "reviews" and args.product_id:
-        reviews: Iterable[Review] = store.get_app_reviews(args.product_id, args.max_reviews)
+        reviews: Iterable[Review] = store.get_app_reviews(
+            args.product_id, args.max_reviews
+        )
         for review in reviews:
             print(review.json())
