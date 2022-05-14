@@ -152,18 +152,22 @@ class SamsungGalaxyStore:
             youtube_url=detail.get("youtubeUrl"),
         )
 
-    def get_all_app_reviews(self, app_id: str) -> Iterable[Review]:
+    def get_app_reviews(self, app_id: str, max_reviews: int = None) -> Iterable[Review]:
+        all_reviews: bool = max_reviews is None or max_reviews <= 0
         page_size: int = 15
-        counter: int = 1
-        while True:
-            reviews: List[Review] = list(self.get_app_reviews(app_id, counter))
-            if len(reviews) == page_size:
-                yield from reviews
-            else:
-                break
-            counter += 15
+        count: int = 1
+        reviews: List[Review] = []
+        last_page: bool = False
+        while all_reviews or count <= max_reviews:
+            if not reviews:
+                if last_page:
+                    break
+                reviews = list(self.get_app_reviews_page(app_id, count))
+                last_page = len(reviews) < page_size
+            yield reviews.pop(0)
+            count += 1
 
-    def get_app_reviews(self, app_id: str, start: int) -> Iterable[Review]:
+    def get_app_reviews_page(self, app_id: str, start: int) -> Iterable[Review]:
         url: str = (
             f"{self.BASE_URL}/api/commentList/contentId={app_id}&startNum={start}"
         )
@@ -267,6 +271,12 @@ if __name__ == "__main__":
         "product_id",
         help="Get reviews for a specific app using the product id (i.e number)",
     )
+    review_parser.add_argument(
+        "--max_reviews",
+        type=int,
+        default=None,
+        help="Number of reviews to return for product, ordered by most recent. Default is all reviews.",
+    )
 
     args = parser.parse_args()
 
@@ -285,6 +295,6 @@ if __name__ == "__main__":
         app: App = store.get_app_details(args.guid)
         print(app.json())
     elif args.command == "reviews" and args.product_id:
-        reviews: Iterable[Review] = store.get_all_app_reviews(args.product_id)
+        reviews: Iterable[Review] = store.get_app_reviews(args.product_id, args.max_reviews)
         for review in reviews:
             print(review.json())
