@@ -87,6 +87,7 @@ class App(AppSummary):
     permissions: List[str]
     privacy_policy_url: str
     youtube_url: str
+    review_count: int
 
     def json(self) -> Dict[str, Any]:
         return super().json()
