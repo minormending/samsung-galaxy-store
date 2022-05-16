@@ -2,7 +2,7 @@ from typing import Any, Dict, Iterable, List
 from requests import Response, Session
 import xml.etree.ElementTree as ET
 
-from models import Category, Developer, AppSummary, App, Review
+from .models import Category, Developer, AppSummary, App, Review
 
 
 
