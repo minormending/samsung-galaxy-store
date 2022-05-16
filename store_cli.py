@@ -3,6 +3,7 @@ from typing import Iterable
 
 from samsung_galaxy_store import SamsungGalaxyStore, Category, AppSummary, App, Review
 
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Lookup Samsung Galaxy Store information."
@@ -72,4 +73,3 @@ def main() -> None:
         )
         for review in reviews:
             print(review.json())
-

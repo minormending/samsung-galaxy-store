@@ -150,7 +150,7 @@ class SamsungGalaxyStore:
             permissions=detail.get("permissionList"),
             privacy_policy_url=detail.get("sellerPrivatePolicy"),
             youtube_url=detail.get("youtubeUrl"),
-            review_count=int(app.get("commentListTotalCount"))
+            review_count=int(app.get("commentListTotalCount")),
         )
 
     def get_app_reviews(self, app_id: str, max_reviews: int = None) -> Iterable[Review]:
