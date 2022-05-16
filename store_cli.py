@@ -73,3 +73,7 @@ def main() -> None:
         )
         for review in reviews:
             print(review.json())
+
+
+if __name__ == "__main__":
+    main()
