@@ -1,11 +1,9 @@
+import argparse
 from typing import Iterable
 
 from samsung_galaxy_store import SamsungGalaxyStore, Category, AppSummary, App, Review
 
-
-if __name__ == "__main__":
-    import argparse
-
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Lookup Samsung Galaxy Store information."
     )
@@ -74,3 +72,4 @@ if __name__ == "__main__":
         )
         for review in reviews:
             print(review.json())
+

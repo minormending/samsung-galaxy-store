@@ -92,8 +92,10 @@ for review in reviews:
 ```
 
 # CLI Usage
+This package comes bundled with a CLI tool for exploring the Samsung Galaxy Store, succiently named `galaxy-store-cli` that can be installed via `poetry install`.
+
 ```
-usage: store_cli.py [-h] {categories,apps,app,reviews} ...
+usage: galaxy-store-cli [-h] {categories,apps,app,reviews} ...
 
 Lookup Samsung Galaxy Store information.
 
@@ -110,7 +112,7 @@ options:
 
 ### Get Categories
 ```
->>> python store_cli.py categories
+>>> galaxy-store-cli categories
 
 {'id': 'G000046957', 'translation_id': 'MIDS_SAPPS_BUTTON_LEISURE_PUZZLES', 'name': 'Puzzle', 'icon_url': 'http://img.samsungapps.com/content/2019/0212/0134/uploadfile_20190212013457076.png', 'watch_face': False, 'content_id': '0000005171'}
 {'id': 'G000046960', 'translation_id': 'MIDS_SAPPS_BUTTON_ONLINE_GAMES', 'name': 'Online Game', 'icon_url': 'http://img.samsungapps.com/content/2019/0212/0135/uploadfile_20190212013557731.png', 'watch_face': False, 'content_id': '0000005172'}
@@ -119,7 +121,7 @@ options:
 
 ### Get Category Apps
 ```
->>> python store_cli.py apps G000060951 --max_apps 3
+>>> galaxy-store-cli apps G000060951 --max_apps 3
 
 {'category_id': 'G000060951', 'category_name': 'Music', 'category_class': 'G', 'id': '000006109280', 'name': 'Tiles Hop - EDM Rush Ball & Endless Music Magic', 'icon_url': 'http://img.samsungapps.com/productNew/000006109280/IconImage_20220321044524279_NEW_WEB_ICON_135_135.png', 'currency_symbol': '$', 'price': '0.00', 'discount_price': '0.00', 'is_discount': False, 'average_rating': 3.0, 'release_date': '2022;01;13;', 'content_type': 'game', 'guid': 'com.GamesStore3D.TilesHopEndlessMusicMagic', 'version': '2.1.1', 'version_code': '1', 'size': 52878366, 'install_size': 52878366, 'restricted_age': '0', 'developer': 'Poppy Challenge Games', 'iap_support': True}
 {'category_id': 'G000060951', 'category_name': 'Music', 'category_class': 'G', 'id': '000005751609', 'name': 'Tiles Hop: EDM Rush!', 'icon_url': 'http://img.samsungapps.com/productNew/000005751609/IconImage_20210625042847048_NEW_WEB_ICON_135_135.png', 'currency_symbol': '$', 'price': '0.00', 'discount_price': '0.00', 'is_discount': False, 'average_rating': 4.0, 'release_date': '2021;06;14;', 'content_type': 'game', 'guid': 'Music.tiles.hop.hot', 'version': '1.0', 'version_code': '1', 'size': 51295176, 'install_size': 51295176, 'restricted_age': '0', 'developer': 'VODOO GAMES', 'iap_support': False}
@@ -128,14 +130,14 @@ options:
 
 ### Get App Details
 ```
->>> python store_cli.py app 'com.playrix.homescapes.samsung'
+>>> galaxy-store-cli app 'com.playrix.homescapes.samsung'
 
 {'id': '000005514733', 'name': 'Homescapes', 'icon_url': 'http://img.samsungapps.com/productNew/000005514733/IconImage_20220505092438492_NEW_WEB_ICON.png', 'currency_symbol': '$', 'price': 0.0, 'is_discount': False, 'average_rating': 4.5, 'content_type': 'A', 'guid': 'com.playrix.homescapes.samsung', 'version': '5.3.3', 'restricted_age': '4', 'iap_support': True, 'developer': {'name': 'Playrix', 'url': 'https://www.playrix.com', 'phone': '896034189', 'address': 'RED OAK NORTH, SOUTH COUNTY BUSINESS PARK', 'representative': 'Mikhail Smachev', 'contact_first_name': 'PLR Worldwide Sales Limited'}, 'description': "Welcome to Homescapes, ...", 'release_notes': "What's new:\n- Bug fixes and improvements\n\nPlease update the game to the latest version.\n\nWEDDING MAKEOVER\n• Save Emma's wedding!\n• Change the character's style!\n• Decorate the wedding venue!\n\nKNIGHT'S TALE\n• Help William join the Knight Club and decorate the yard with medieval decorations!\n• Get the Knight's Castle decoration.\n\nALSO\n• Woolly Season! Use the Golden Ticket to get a cute little lamb!\n• Help Betty improve her smart home and meet a robot butler!", 'customer_support_email': 'homescapes@playrix.com', 'deeplink': 'samsungapps://ProductDetail/com.playrix.homescapes.samsung?session_id=W_8EE1FEC49C2C61700D7D11650B83BDEC', 'update_date': '2022.05.05', 'permissions': ['storage'], 'privacy_policy_url': 'https://www.playrix.com/privacy/index.html', 'youtube_url': 'https://www.youtube.com/embed/9FlvCL8_4r8?hd=1&rel=0&autohide=1&showinfo=0&wmode=transparent'}
 ```
 
 ### Get App Reviews
 ```
->>> python store_cli.py reviews 000005514733 --max_reviews 3
+>>> galaxy-store-cli reviews 000005514733 --max_reviews 3
 
 {'text': '3vj93', 'user': 'brad**', 'updated_date': '2022.05.13', 'stars': 5.0, 'developer_responded': False}
 {'text': 'I LOVE THIS GAME ❤', 'user': 'ruby**', 'updated_date': '2022.05.12', 'stars': 5.0, 'developer_responded': False}
