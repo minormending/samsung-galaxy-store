@@ -3,7 +3,11 @@ from typing import Any, Dict, List
 
 
 def minimize_dict(maximized: Dict[Any, Any]) -> Dict[Any, Any]:
-    return {key: value for key, value in maximized.items() if value is not None}
+    return {
+        key: value
+        for key, value in maximized.items()
+        if value is not None and value is not ""
+    }
 
 
 @dataclass
