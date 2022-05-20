@@ -205,7 +205,7 @@ class SamsungGalaxyStore:
 </SamsungProtocol>
 """.strip()
         root: ET.Element = ET.fromstring(template)
-        request_node: Element = root.find("./request")
+        request_node: ET.Element = root.find("./request")
         if games:
             sub_node = ET.SubElement(
                 request_node, "param", {"name": "upLevelCategoryKeyword"}
