@@ -14,6 +14,12 @@ def main() -> None:
         "categories",
         help="Get store category information",
     )
+    category_parser.add_argument(
+        "--mode",
+        default="games",
+        choices=["games", "apps"],
+        help="Get games or apps categories. default=games",
+    )
 
     category_app_parser = subparsers.add_parser(
         "apps", help="Get bestselling apps in a specific category."
@@ -55,7 +61,8 @@ def main() -> None:
 
     store = SamsungGalaxyStore()
     if args.command == "categories":
-        for category in store.get_categories():
+        games: bool = args.mode.lower() == "games"
+        for category in store.get_categories(games):
             print(category.json())
     elif args.command == "apps" and args.category_id:
         category: Category = Category(args.category_id, None, None, None, False, None)
