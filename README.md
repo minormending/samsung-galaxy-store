@@ -181,3 +181,16 @@ options:
 {'text': 'I LOVE THIS GAME ❤', 'user': 'ruby**', 'updated_date': '2022.05.12', 'stars': 5.0, 'developer_responded': False}
 {'text': "Ex s d3 se rex wz ee's eeeed,,\nxz\nsix zzz x", 'user': 'coya**', 'updated_date': '2022.05.12', 'stars': 5.0, 'developer_responded': False}
 ```
+
+# Docker
+Containers are automatically built off of the main branch and can be downloaded from: https://hub.docker.com/repository/docker/minormending/samsung-galaxy-store
+
+Alternatively, you can build your own containers:
+```
+>>> docker build -t galaxy-store .
+>>> docker run galaxy-store categories --mode=games
+
+{'id': 'G000046957', 'translation_id': 'MIDS_SAPPS_BUTTON_LEISURE_PUZZLES', 'name': 'Puzzle', 'icon_url': 'http://img.samsungapps.com/content/2019/0212/0134/uploadfile_20190212013457076.png', 'watch_face': False, 'content_id': '0000005171'}
+{'id': 'G000046960', 'translation_id': 'MIDS_SAPPS_BUTTON_ONLINE_GAMES', 'name': 'Online Game', 'icon_url': 'http://img.samsungapps.com/content/2019/0212/0135/uploadfile_20190212013557731.png', 'watch_face': False, 'content_id': '0000005172'}
+{'id': 'G000046961', 'translation_id': 'MIDS_SAPPS_BUTTON_ACTION_ADVENTURE', 'name': 'Action/Adventure', 'icon_url': 'http://img.samsungapps.com/content/2019/0212/0136/uploadfile_20190212013636628.png', 'watch_face': False, 'content_id': '0000005173'}
+```
