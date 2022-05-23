@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "samsung-galaxy-store"
-version = "0.1.8"
+version = "0.1.9"
 description = "Samsung Galaxy Store analysis tools"
 authors = ["Kevin Ramdath <krpent@gmail.com>"]
 repository = "https://github.com/minormending/samsung-galaxy-store"
