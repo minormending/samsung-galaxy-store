@@ -1,5 +1,6 @@
 from typing import Any, Dict, Iterable, List
 from requests import Response, Session
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 from .models import Category, Developer, AppSummary, App, Review
@@ -64,14 +65,16 @@ class SamsungGalaxyStore:
                 name=app.findtext("./value[@name='productName']"),
                 icon_url=app.findtext("./value[@name='productImgUrl']"),
                 currency_symbol=app.findtext("./value[@name='currencyUnit']"),
-                price=app.findtext("./value[@name='price']"),
-                discount_price=app.findtext("./value[@name='discountPrice']"),
+                price=float(app.findtext("./value[@name='price']")),
+                discount_price=float(app.findtext("./value[@name='discountPrice']")),
                 is_discount=self._parse_bool(
                     app.findtext("./value[@name='discountFlag']")
                 ),
                 average_rating=float(app.findtext("./value[@name='averageRating']"))
                 / 2.0,
-                release_date=app.findtext("./value[@name='date']"),
+                release_date=datetime.strptime(
+                    app.findtext("./value[@name='date']"), "%Y;%m;%d;"
+                ),
                 content_type=app.findtext("./value[@name='contentType']"),
                 guid=app.findtext("./value[@name='GUID']"),
                 version=app.findtext("./value[@name='version']"),
@@ -107,13 +110,10 @@ class SamsungGalaxyStore:
                 price = float(local_price)
 
         seller: Dict[str, str] = app.get("SellerInfo")
-        phone: str = seller.get("sellerNumber")
-        if phone:
-            phone = phone.lower().removeprefix("irl")
         developer: Developer = Developer(
             name=detail.get("sellerName"),
             url=seller.get("sellerSite"),
-            phone=phone,
+            phone=seller.get("sellerNumber"),
             address=seller.get("firstSellerAddress"),
             representative=seller.get("representation"),
             contact_first_name=seller.get("firstName"),
@@ -146,7 +146,7 @@ class SamsungGalaxyStore:
             release_notes=detail.get("contentNewDescription"),
             customer_support_email=detail.get("customerSupportEmail"),
             deeplink=detail.get("deeplinkUrl"),
-            update_date=detail.get("modifyDate"),
+            update_date=datetime.strptime(detail.get("modifyDate"), "%Y.%m.%d"),
             permissions=detail.get("permissionList"),
             privacy_policy_url=detail.get("sellerPrivatePolicy"),
             youtube_url=detail.get("youtubeUrl"),
@@ -179,8 +179,10 @@ class SamsungGalaxyStore:
             yield Review(
                 text=review.get("commentText"),
                 user=review.get("loginId"),
-                created_date=review.get("createdDate"),
-                updated_date=review.get("modifyDate"),
+                created_date=datetime.strptime(
+                    review.get("createDate"), "%Y-%m-%d %H:%M:%S.0"
+                ),
+                updated_date=datetime.strptime(review.get("modifyDate"), "%Y.%m.%d"),
                 stars=float(
                     review.get("ratingValueNumber")
                     .removeprefix("stars rating-stars-")

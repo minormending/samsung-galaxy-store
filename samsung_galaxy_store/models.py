@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, List
 
 
@@ -6,8 +7,20 @@ def minimize_dict(maximized: Dict[Any, Any]) -> Dict[Any, Any]:
     return {
         key: value
         for key, value in maximized.items()
-        if value is not None and value is not ""
+        if value is not None and value != ""
     }
+
+
+def serialize_datetimes(dic: Dict[str, Any]) -> Dict[str, Any]:
+    output: Dict[str, Any] = {}
+    for key, value in dic.items():
+        if not isinstance(value, datetime):
+            output[key] = value
+        elif value.hour != 0 and value.minute != 0 and value.second != 0:
+            output[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            output[key] = value.strftime("%Y-%m-%d")
+    return output
 
 
 @dataclass
@@ -41,14 +54,14 @@ class Developer:
 class Review:
     text: str
     user: str
-    created_date: str
-    updated_date: str
+    created_date: datetime
+    updated_date: datetime
     stars: float
     developer_responded: bool
     user_id: str
 
     def json(self) -> Dict[str, Any]:
-        return minimize_dict(self.__dict__)
+        return serialize_datetimes(minimize_dict(self.__dict__))
 
 
 @dataclass
@@ -64,7 +77,7 @@ class AppSummary:
     discount_price: float
     is_discount: bool
     average_rating: int
-    release_date: str
+    release_date: datetime
     content_type: str
     guid: str
     version: str
@@ -78,7 +91,7 @@ class AppSummary:
     def json(self) -> Dict[str, Any]:
         value: Dict[str, Any] = self.__dict__
         value["developer"] = self.developer.json()
-        return minimize_dict(value)
+        return serialize_datetimes(minimize_dict(value))
 
 
 @dataclass
@@ -87,7 +100,7 @@ class App(AppSummary):
     release_notes: str
     customer_support_email: str
     deeplink: str
-    update_date: str
+    update_date: datetime
     permissions: List[str]
     privacy_policy_url: str
     youtube_url: str
