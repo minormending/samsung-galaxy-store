@@ -16,7 +16,7 @@ def serialize_datetimes(dic: Dict[str, Any]) -> Dict[str, Any]:
     for key, value in dic.items():
         if not isinstance(value, datetime):
             output[key] = value
-        elif value.hour != 0 and value.minute != 0 and value.second != 0:
+        elif value.hour != 0 or value.minute != 0 or value.second != 0:
             output[key] = value.strftime("%Y-%m-%d %H:%M:%S")
         else:
             output[key] = value.strftime("%Y-%m-%d")
