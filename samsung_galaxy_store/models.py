@@ -2,62 +2,45 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List
 
-
-def minimize_dict(maximized: Dict[Any, Any]) -> Dict[Any, Any]:
-    """Removes keys with empty and null values from a dictionary.
-
-    Args:
-        maximized: A dictionary with possible null values.
-
-    Returns:
-        A new dictionary without keys with null or empty values.
-
-    Examples:
-        >>> minimize_dict({"a": None})
-        {}
-        >>> minimize_dict({"a": ""})
-        {}
-        >>> minimize_dict({"a": None, "b": 1, "c": ""})
-        {'b': 1}
-    """    
-    return {
-        key: value
-        for key, value in maximized.items()
-        if value is not None and value != ""
-    }
-
-
-def serialize_datetimes(dic: Dict[str, Any]) -> Dict[str, Any]:
-    """Serializes any datetime value instances in a dictionary.
-
-    The time portion is not serialized for datetime values at midnight. 
-
-    Args:
-        dic: A dictionary with possible datetime values.
-
-    Returns:
-        A new dictionary where datetime values have been converted to strings.
-
-    Examples:
-        >>> import datetime
-        >>> serialize_datetimes({"a":datetime.datetime(2022, 7, 1)})
-        {'a': '2022-07-01'}
-        >>> serialize_datetimes({"a":datetime.datetime(2022, 7, 1, 4, 7, 0)})
-        {'a': '2022-07-01 04:07:00'}
-    """    
-    output: Dict[str, Any] = {}
-    for key, value in dic.items():
-        if not isinstance(value, datetime):
-            output[key] = value
-        elif value.hour != 0 or value.minute != 0 or value.second != 0:
-            output[key] = value.strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            output[key] = value.strftime("%Y-%m-%d")
-    return output
+from .utils import minimize_dict, serialize_datetimes
 
 
 @dataclass
-class Category:
+class BaseModel:
+    """Model utilities functions for derived classes."""
+
+    def json(self) -> Dict[str, Any]:
+        """Minimal JSON representation of the class attributes.
+
+        Returns:
+            A dictionary of all the class attributes with non-null or empty values 
+                and datetimes serialized.
+        """
+
+        maximized: Dict[str, Any] = {}
+        for key, value in self.__dict__.items():
+            if value and isinstance(value, BaseModel):
+                maximized[key] = value.json()
+            else:
+                maximized[key] = value
+
+        return serialize_datetimes(minimize_dict(maximized))
+
+
+
+@dataclass
+class Category(BaseModel):
+    """A Samsung Galaxy Store app category.
+
+    Attributes:
+        id: The category id, format is `G0000#####`
+        translation_id: Upper-underscore case slug for the category.
+        name: Pretty category name for the user.
+        icon_url: The category icon url.
+        watch_face: Whether the category supports Samsung Watch faces.
+        content_id: Numeric identifier for a category, format is `000000####`
+    """
+
     id: str
     translation_id: str
     name: str
@@ -65,12 +48,20 @@ class Category:
     watch_face: bool
     content_id: str
 
-    def json(self) -> Dict[str, Any]:
-        return minimize_dict(self.__dict__)
-
 
 @dataclass
-class Developer:
+class Developer(BaseModel):
+    """A Samsung Galaxy Store app developer.
+
+    Attributes:
+        name: Pretty developer name for the user.
+        url: The developer website.
+        phone: The developer contact person phone number.
+        address: The developer headquarter address.
+        representative: The developer contact person.
+        contact_first_name: Either the representative first name or title.
+        contact_last_name: Either the representative last name or nothing.
+    """
     name: str
     url: str = None
     phone: str = None
@@ -79,12 +70,20 @@ class Developer:
     contact_first_name: str = None
     contact_last_name: str = None
 
-    def json(self) -> Dict[str, Any]:
-        return minimize_dict(self.__dict__)
-
 
 @dataclass
 class Review:
+    """A Samsung Galaxy Store user review of an app.
+    
+    Attributes:
+        text: The body of the user review.
+        user: The first 4 characters of the user name.
+        created_date: The date the review was first created.
+        updated_date: The most recent date the user made edits to the review.
+        stars: The user rating, 0-5
+        developer_responded: Whether the developer responded to the review.
+        user_id: Samsung Galaxy Store user id, not used.
+    """
     text: str
     user: str
     created_date: datetime
@@ -93,12 +92,9 @@ class Review:
     developer_responded: bool
     user_id: str
 
-    def json(self) -> Dict[str, Any]:
-        return serialize_datetimes(minimize_dict(self.__dict__))
-
 
 @dataclass
-class AppSummary:
+class AppSummary(BaseModel):
     category_id: str
     category_name: str
     category_class: str
@@ -121,11 +117,6 @@ class AppSummary:
     iap_support: bool
     developer: Developer
 
-    def json(self) -> Dict[str, Any]:
-        value: Dict[str, Any] = self.__dict__
-        value["developer"] = self.developer.json()
-        return serialize_datetimes(minimize_dict(value))
-
 
 @dataclass
 class App(AppSummary):
@@ -138,6 +129,3 @@ class App(AppSummary):
     privacy_policy_url: str
     youtube_url: str
     review_count: int
-
-    def json(self) -> Dict[str, Any]:
-        return super().json()

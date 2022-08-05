@@ -4,8 +4,9 @@ theme:
   name: "material"
 
 plugins:
+  - search
   - mkdocstrings
-  
+
 nav:
   - Samsung Galaxy Store Docs: index.md
   - tutorials.md
