@@ -9,16 +9,16 @@ license = "MIT"
 keywords = ["samsung", "galaxy", "appstore"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
 requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
 black = "^22.3.0"
 nose2 = "^0.11.0"
 mkdocs = "^1.3.1"
 mkdocstrings = {extras = ["python"], version = "^0.19.0"}
 mkdocs-material = "^8.3.9"
+vermin = "^1.4.1"
 
 [tool.poetry.scripts]
 galaxy-store-cli = "samsung_galaxy_store.cli:main"
