@@ -8,17 +8,40 @@ from .models import Category, Developer, AppSummary, App, Review
 
 
 class SamsungGalaxyStore:
+    """Client for interacting with the Samsung Galaxy Store.
+
+    Attributes:
+        BASE_URL: The root url for the Samsung Galaxy Store
+    """
+
     BASE_URL: str = "https://galaxystore.samsung.com"
 
     def __init__(self) -> None:
+        """Sets up the client to talk to the Samsung Galaxy Store."""
+
+        # All communicate to the external store should go through the session.
         self.session = Session()
+
+        # These are the minimal required headers used by Samsung to validate a request.
         self.session.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36",
             "origin": "https://galaxystore.samsung.com",
+            # TODO: Accept a region for localized results.
             "x-galaxystore-url": "http://us-odc.samsungapps.com/ods.as",
         }
 
     def get_categories(self, games: bool = True) -> Iterable[Category]:
+        """Get the Samsung Galaxy Store app categories.
+
+        Args:
+            games: Should the method return app game categories.
+
+        Raises:
+            Exception: If the external store could not validate the request and return the categories.
+
+        Yields:
+            A  model with details about the app category.
+        """
         url: str = f"{self.BASE_URL}/storeserver/ods.as?id=normalCategoryList"
         payload: str = self._get_categories_request(games)
         headers: Dict[str, str] = {"content-type": "application/xml"}
