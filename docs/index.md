@@ -1,7 +1,5 @@
-This site contains the project documentation for the
-`Samsung Galaxy Store` client that provides a python
-interface to fetch information about Samsung Galaxy
-Store categories and apps.  
+# Welcome
+This site contains the project documentation for the `Samsung Galaxy Store` client that provides a python interface to fetch information about Samsung Galaxy Store categories and apps.  
 
 ## Table Of Contents
 

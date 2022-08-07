@@ -3,4 +3,6 @@ an **information-oriented** approach. Use it as a
 reference for the technical implementation of the
 `calculator` project code.
 
+::: samsung_galaxy_store.store
+
 ::: samsung_galaxy_store.models
