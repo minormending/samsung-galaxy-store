@@ -80,7 +80,8 @@ def main() -> None:
         )
         for review in reviews:
             print(review.json())
-
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()
